@@ -111,6 +111,19 @@ class ContaCorrente(Conta):
             C/C:\t{self.numero}
             Titular:\t{self.cliente.nome}
         """
+    
+class Historico:
+    def __init__(self):
+        self._transacoes = []
+
+    def_adicionar_transacao(self, transacao):
+        self._transacoes.append(
+            {
+                "tipo": transacao.__class__.__name__,
+                "valor": transacao.valor,
+                "data": datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+            }
+        )
 
 def deposito(saldo, valor, extrato, /):
     """Realiza um depósito na conta bancária.
