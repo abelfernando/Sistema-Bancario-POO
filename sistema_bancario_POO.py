@@ -1,4 +1,5 @@
 import textwrap
+from datetime import datetime
 from abc import ABC, abstractmethod
 
 class Cliente:
@@ -116,7 +117,7 @@ class Historico:
     def __init__(self):
         self._transacoes = []
 
-    def_adicionar_transacao(self, transacao):
+    def adicionar_transacao(self, transacao):
         self._transacoes.append(
             {
                 "tipo": transacao.__class__.__name__,
@@ -124,6 +125,44 @@ class Historico:
                 "data": datetime.now().strftime("%d-%m-%Y %H:%M:%S")
             }
         )
+    
+class Transacao(ABC):
+    @property
+    @abstractmethod
+    def valor(self):
+        pass
+
+    @abstractmethod
+    def registrar(self, conta):
+        pass
+
+class Saque(Transacao):
+    def __init__(self, valor):
+        self._valor = valor
+
+    @property
+    def valor(self):
+        return self._valor
+
+    def registrar(self, conta):
+        sucesso = conta.sacar(self.valor)
+
+        if sucesso:
+            conta.historico._adicionar_transacao(self)
+
+class Deposito(Transacao):
+    def __init__(self, valor):
+        self._valor = valor
+
+    @property
+    def valor(self):
+        return self._valor
+
+    def registrar(self, conta):
+        sucesso = conta.depositar(self.valor)
+
+        if sucesso:
+            conta.historico._adicionar_transacao(self)
 
 def deposito(saldo, valor, extrato, /):
     """Realiza um depósito na conta bancária.
