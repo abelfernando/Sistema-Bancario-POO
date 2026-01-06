@@ -97,7 +97,7 @@ class ContaCorrente(Conta):
 
     def sacar(self, valor):
         numero_saques = len(
-            [transacao for transacao in self.historico.transacoes if transacao["tipo"] == Saque.__name__]
+            [transacao for transacao in self.historico._transacoes if transacao["tipo"] == Saque.__name__]
         )
 
         excedeu_limite = valor > self.limite
@@ -156,7 +156,7 @@ class Saque(Transacao):
         sucesso = conta.sacar(self.valor)
 
         if sucesso:
-            conta.historico._adicionar_transacao(self)
+            conta.historico.adicionar_transacao(self)
 
 class Deposito(Transacao):
     def __init__(self, valor):
@@ -170,7 +170,13 @@ class Deposito(Transacao):
         sucesso = conta.depositar(self.valor)
 
         if sucesso:
-            conta.historico._adicionar_transacao(self)
+            conta.historico.adicionar_transacao(self)
+
+def filtrar_usuario(cpf, usuarios):
+    """Filtra um usuário pelo CPF."""
+    usuarios_filtrados = [usuario for usuario in usuarios if usuario.cpf == cpf]
+    return usuarios_filtrados[0] if usuarios_filtrados else None
+
 
 def recuperar_conta_usuario(usuario):
     """Recupera as contas bancárias de um usuário."""
@@ -225,19 +231,34 @@ def saque(usuarios):
 
     usuario.realizar_transacao(conta, transacao)
 
-def exibir_extrato(saldo, /, *, extrato):
-    """Exibe o extrato da conta bancária.
-    Parâmetros por posição ou por nome: (saldo, extrato)"""
+def exibir_extrato(usuarios):
+    """Exibe o extrato da conta bancária."""
+
+    cpf = input("Informe o CPF do usuário: ")
+    usuario = filtrar_usuario(cpf, usuarios)
+
+    if not usuario:
+        print("Usuário não encontrado!")
+        return
+    
+    conta = recuperar_conta_usuario(usuario)
+    if not conta:
+        return
 
     print("\n================ EXTRATO ================")
-    print("Não foram realizadas movimentações." if not extrato else extrato)
-    print(f"\nSaldo:\tR$ {saldo:.2f}")
+    transacoes = conta.historico._transacoes
+
+    extrato = ""
+    if not transacoes:
+        extrato = "Não foram realizadas movimentações."
+    else:
+        for transacao in transacoes:
+            extrato += f"\n{transacao['data']} - {transacao['tipo']}:\n\tR$ {transacao['valor']:.2f}"
+    
+    print(extrato)
+    print(f"\nSaldo:\n\tR$ {conta.saldo:.2f}")
     print("==========================================")
 
-def filtrar_usuario(cpf, usuarios):
-    """Filtra um usuário pelo CPF."""
-    usuarios_filtrados = [usuario for usuario in usuarios if usuario.cpf == cpf]
-    return usuarios_filtrados[0] if usuarios_filtrados else None
 
 def criar_usuario(usuarios):
     """Cria um novo usuário no sistema bancário."""
@@ -266,6 +287,7 @@ def criar_conta(numero_conta, usuarios, contas):
     if usuario:
         conta = ContaCorrente.nova_conta(cliente=usuario, numero=numero_conta)
         contas.append(conta)
+        usuario.contas.append(conta)
         numero_conta += 1
         print("\nConta criada com sucesso!")
         return numero_conta
@@ -305,12 +327,6 @@ def menu():
 
 def main():
     """Função principal do sistema bancário."""
-    LIMITE_SAQUES = 3
-    
-    saldo = 0
-    limite = 500
-    extrato = ""
-    numero_saques = 0
     usuarios = []
     contas = []
     numero_conta = 1
@@ -321,18 +337,13 @@ def main():
         opcao = menu()
     
         if opcao == "d":
-            valor = float(input("Informe o valor do depósito: "))
-    
-            saldo, extrato = deposito(saldo, valor, extrato)
+            deposito(usuarios)
     
         elif opcao == "s":
-            valor = float(input("Informe o valor do saque: "))
-    
-            saldo, extrato, numero_saques = saque(saldo=saldo, valor=valor, extrato=extrato, limite=limite,
-                                                numero_saques=numero_saques, limite_saques=LIMITE_SAQUES)
+            saque(usuarios)
     
         elif opcao == "e":
-            exibir_extrato(saldo, extrato = extrato)
+            exibir_extrato(usuarios)
 
         elif opcao == "nu":
             criar_usuario(usuarios)
