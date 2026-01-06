@@ -14,8 +14,8 @@ class Cliente:
         self.contas.append(conta)
 
 class PessoaFisica(Cliente):
-    def __init__(self, nome,cpf, data_nascimento):
-        super().__init__(endereco=None)
+    def __init__(self, nome,cpf, data_nascimento, endereco):
+        super().__init__(endereco)
         self.nome = nome
         self.cpf = cpf
         self.data_nascimento = data_nascimento
@@ -224,7 +224,11 @@ def criar_usuario(usuarios):
     nome = input("Nome completo: ")
     data_nascimento = input("Data de nascimento (dd-mm-aaaa): ")
     endereco = input("Endereço (logradouro, número - bairro - cidade/UF): ")
-    usuarios.append({"nome": nome, "data_nascimento": data_nascimento, "cpf": cpf, "endereco": endereco})
+
+    usuario = PessoaFisica(nome = nome, cpf = cpf, data_nascimento = data_nascimento, endereco = endereco)
+
+    usuarios.append(usuario)
+    
     print("\nUsuário criado com sucesso!")
 
 def criar_conta(AGENCIA, numero_conta, usuarios, contas):
