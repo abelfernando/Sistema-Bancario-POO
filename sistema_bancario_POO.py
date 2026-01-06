@@ -20,6 +20,14 @@ class PessoaFisica(Cliente):
         self.cpf = cpf
         self.data_nascimento = data_nascimento
 
+    def __str__(self):
+        return f"""\
+            Nome:\t{self.nome}
+            CPF:\t{self.cpf}
+            Data de Nascimento:\t{self.data_nascimento}
+            Endereço:\t{self.endereco}
+        """
+
 class Conta:
     def __init__(self, numero, cliente):
         self._saldo = 0
@@ -209,7 +217,7 @@ def exibir_extrato(saldo, /, *, extrato):
 
 def filtrar_usuario(cpf, usuarios):
     """Filtra um usuário pelo CPF."""
-    usuarios_filtrados = [usuario for usuario in usuarios if usuario["cpf"] == cpf]
+    usuarios_filtrados = [usuario for usuario in usuarios if usuario.cpf == cpf]
     return usuarios_filtrados[0] if usuarios_filtrados else None
 
 def criar_usuario(usuarios):
@@ -249,25 +257,14 @@ def criar_conta(AGENCIA, numero_conta, usuarios, contas):
 def listar_contas(contas):
     """Lista todas as contas bancárias criadas no sistema."""
     for conta in contas:
-        linha = f"""\
-            Agência:\t{conta['agencia']}
-            C/C:\t{conta['numero_conta']}
-            Titular:\t{conta['usuario']['nome']}
-        """
         print("=" * 100)
-        print(textwrap.dedent(linha))
+        print(textwrap.dedent(str(conta)))
 
 def listar_usuarios(usuarios):
     """Lista todos os usuários cadastrados no sistema."""
     for usuario in usuarios:
-        linha = f"""\
-            Nome:\t{usuario['nome']}
-            CPF:\t{usuario['cpf']}
-            Data de Nascimento:\t{usuario['data_nascimento']}
-            Endereço:\t{usuario['endereco']}
-        """
         print("=" * 100)
-        print(textwrap.dedent(linha))
+        print(textwrap.dedent(str(usuario)))
 
 
 def menu():
