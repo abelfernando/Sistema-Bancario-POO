@@ -172,6 +172,21 @@ class Deposito(Transacao):
         if sucesso:
             conta.historico._adicionar_transacao(self)
 
+def recuperar_conta_usuario(usuario):
+    """Recupera as contas bancárias de um usuário."""
+    if len( usuario.contas) == 0:
+        print("O usuário não possui contas bancárias.")
+        return None
+    elif len( usuario.contas) > 1:
+        print("=" *100)
+        print("O usuário possui mais de uma conta. Selecione a conta desejada:")
+        for i, conta in enumerate(usuario.contas):
+            print(f"[{i + 1}] - Conta número: {conta.numero}")
+        conta_escolhida = int(input("Número da conta desejada: "))
+        return usuario.contas[conta_escolhida - 1]
+    else:
+        return usuario.contas[0]
+
 def deposito(saldo, valor, extrato, /):
     """Realiza um depósito na conta bancária.
     Parâmetros apenas por posição: (saldo, valor, extrato)"""
@@ -239,7 +254,7 @@ def criar_usuario(usuarios):
 
     print("\nUsuário criado com sucesso!")
 
-def criar_conta(AGENCIA, numero_conta, usuarios, contas):
+def criar_conta(numero_conta, usuarios, contas):
     """Cria uma nova conta bancária para um usuário existente."""
     cpf = input("Informe o CPF do usuário: ")
     usuario = filtrar_usuario(cpf, usuarios)
@@ -287,8 +302,7 @@ def menu():
 def main():
     """Função principal do sistema bancário."""
     LIMITE_SAQUES = 3
-    AGENCIA = "0001"
-
+    
     saldo = 0
     limite = 500
     extrato = ""
@@ -320,7 +334,7 @@ def main():
             criar_usuario(usuarios)
 
         elif opcao == "nc":
-            numero_conta = criar_conta(AGENCIA, numero_conta, usuarios, contas)
+            numero_conta = criar_conta(numero_conta, usuarios, contas)
 
         elif opcao == "lc":
             listar_contas(contas)
