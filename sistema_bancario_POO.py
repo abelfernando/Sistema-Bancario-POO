@@ -187,39 +187,43 @@ def recuperar_conta_usuario(usuario):
     else:
         return usuario.contas[0]
 
-def deposito(saldo, valor, extrato, /):
-    """Realiza um depósito na conta bancária.
-    Parâmetros apenas por posição: (saldo, valor, extrato)"""
+def deposito(usuarios):
+    """Realiza um depósito na conta bancária"""
 
-    if valor > 0:
-        saldo += valor
-        extrato += f"Depósito:\tR$ {valor:.2f}\n"
-        
-    else:
-        print("Operação falhou! O valor informado é inválido.")
+    cpf = input("Informe o CPF do usuário: ")
+    usuario = filtrar_usuario(cpf, usuarios)
+
+    if not usuario:
+        print("Usuário não encontrado!")
+        return
+
+    conta = recuperar_conta_usuario(usuario)
+    if not conta:
+        return
+
+    valor = float(input("Informe o valor do depósito: "))
+    transacao = Deposito(valor)
     
-    return saldo, extrato
-    
+    usuario.realizar_transacao(conta, transacao)
 
-def saque(*, saldo, valor, extrato, limite, numero_saques, limite_saques):
-    """Realiza um saque na conta bancária.
-    Parâmetros apenas por nome: (saldo, valor, extrato, limite, numero_saques, limite_saques)"""
+def saque(usuarios):
+    """Realiza um saque na conta bancária."""
 
-    if valor > limite + saldo:
-        print("Operação falhou! Você não tem saldo suficiente e o valor do saque excede o limite.")
+    cpf = input("Informe o CPF do usuário: ")
+    usuario = filtrar_usuario(cpf, usuarios)
 
-    elif numero_saques >= limite_saques:
-        print("Operação falhou! Número máximo de saques excedido.")
-        
-    elif valor > 0:
-        saldo -= valor
-        extrato += f"Saque:\tR$ {valor:.2f}\n"
-        numero_saques += 1
-    else:
-        print("Operação falhou! O valor informado é inválido.")
-    
-    return saldo, extrato, numero_saques
+    if not usuario:
+        print("Usuário não encontrado!")
+        return
 
+    conta = recuperar_conta_usuario(usuario)
+    if not conta:
+        return
+
+    valor = float(input("Informe o valor do saque: "))
+    transacao = Saque(valor)
+
+    usuario.realizar_transacao(conta, transacao)
 
 def exibir_extrato(saldo, /, *, extrato):
     """Exibe o extrato da conta bancária.
