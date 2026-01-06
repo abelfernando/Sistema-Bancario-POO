@@ -228,7 +228,7 @@ def criar_usuario(usuarios):
     usuario = PessoaFisica(nome = nome, cpf = cpf, data_nascimento = data_nascimento, endereco = endereco)
 
     usuarios.append(usuario)
-    
+
     print("\nUsuário criado com sucesso!")
 
 def criar_conta(AGENCIA, numero_conta, usuarios, contas):
@@ -237,7 +237,8 @@ def criar_conta(AGENCIA, numero_conta, usuarios, contas):
     usuario = filtrar_usuario(cpf, usuarios)
 
     if usuario:
-        contas.append({"agencia": AGENCIA, "numero_conta": numero_conta, "usuario": usuario})
+        conta = ContaCorrente.nova_conta(cliente=usuario, numero=numero_conta)
+        contas.append(conta)
         numero_conta += 1
         print("\nConta criada com sucesso!")
         return numero_conta
